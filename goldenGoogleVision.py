@@ -15,7 +15,7 @@ from io import BytesIO
 import urllib
 from bs4 import BeautifulSoup
 import json
-
+import math
 
 def get_image_size(url):
     try:
@@ -85,10 +85,55 @@ def getMedian(d):
         return(geomMed)
     return(None)
 
+def _image_entropy(img):
+    """calculate the entropy of an image"""
+    hist = img.histogram()
+    hist_size = sum(hist)
+    hist = [float(h) / hist_size for h in hist]
+
+    return -sum(p * math.log(p, 2) for p in hist if p != 0)
+
+def square_im(img):
+    x,y = img.size
+    while x!=y:
+        dy = 10
+        
+        if y-x<10:
+            dy = 1
+        bottom = img.crop((0, y - dy, x, y))
+        top = img.crop((0, 0, x, dy))
+        #remove the slice with the least entropy
+        if _image_entropy(bottom) > _image_entropy(top):
+            img = img.crop((0, 0, x, y - dy))
+        else:
+            img = img.crop((0, dy, x, y))
+        x,y = img.size
+    return(img)
+
+def getThumb(imUrl):
+    """
+    If image isn't square, make it so, maximizing interest
+    """
+    # retrieve image data
+    data = requests.get(imUrl).content
+    im = Image.open(BytesIO(data)) 
+    s = im.size
+    if s[0]==s[1]:
+        return(im)
+    T = False
+    if s[0]>s[1]: # landscape
+        T = True
+        im = im.transpose(method=Image.TRANSPOSE)
+    square = square_im(im)
+    if T:
+        square = square.transpose(method=Image.TRANSPOSE)
+    return(square)
+     
+
 def scrapeImages(url):
     """
     Return dict of images at url with nPix>160000 with googleVision labels and best 
-    guess as location if likely a map
+    guess at location if likely a map
     """
     #Scrape images
     r = requests.get(url)
@@ -96,27 +141,43 @@ def scrapeImages(url):
     soup = BeautifulSoup(data,"html5lib")
     ims = {}
     # for every image with nPix>160000, get GV labels, add labels to dict
+    maxPix, bigIm = 0,''
     for image in soup.find_all("img"):
         if image.get("src")!=None:
             imUrl = image.get("src")
-            if np.product(get_image_size(imUrl))>160000: 
-                print(image.get("src"))
-
-                labels = detect_labels_url(imUrl)
+            size = get_image_size(imUrl)
+            nPix = np.product(size)
+            # Penalize long/wide images
+            if max(size)>2*min(size):
+                nPix/=10.
+            if nPix > maxPix:
+                maxPix,bigIm = nPix,imUrl          
+            if nPix > 160000: # For interestingly large images
+                # Add to dict
                 ims[imUrl] = {'url':imUrl}
+                labels = detect_labels_url(imUrl)
+                # Add googleVision labels to dict
                 allLabels = []
                 for label in labels:
                     allLabels.append(label.description)
                 if len(allLabels)>0:
                     ims[imUrl]['GVlabels'] = allLabels
+                # if image is labelled as mappy, extract text, geocode, compute geometric median
                 if 'map' in allLabels or 'drawing' in allLabels or 'diagram' in allLabels or\
                    'location' in allLabels:
                     text = detect_text_url(imUrl)
                     strings = text[0].description.split('\n')
+                    print(strings)
                     if len(strings)>0:
                         geoStrings = geocode_text(strings)
                         geoMed = getMedian(geoStrings)
                         ims[imUrl]['location'] = geoMed
+                        
+    # build square thumbnail for biggest image
+    thumb = getThumb(bigIm)
+    thumb.save(url+'.thumb.jpg',format='jpeg')
+    # RETURN THUMBNAME?
+        
     return(ims)
                 
                 

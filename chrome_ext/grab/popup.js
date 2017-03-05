@@ -77,7 +77,7 @@ function getCurrentTabTitle(callback) {
  * @param {string} html_content - HTML content of the current tab
  *   
  */
-function savePin(nurl,html_content) {
+function savePin(nurl, title, html_content) {
 
   // var apiurl = 'http://127.0.0.1:5000/store'
   var apiurl = 'http://127.0.0.1:5000/store';
@@ -116,7 +116,8 @@ function savePin(nurl,html_content) {
 
 
   x.send(JSON.stringify({
-    "title": nurl,
+    "url": nurl,
+    "title": title,
     "image": "placeholder.png",
     "tags": document.getElementById('tags').value,
     "html": 'html_content',
@@ -159,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     title = "New Loc"
 
     document.getElementById("pinIt").addEventListener("click", function(){
-          savePin(title, url, html_content);
+          savePin(url, title, html_content);
     });
 
 

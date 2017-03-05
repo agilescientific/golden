@@ -156,11 +156,18 @@ document.addEventListener('DOMContentLoaded', function() {
           // message.innerText = request.source;
           html_content = request.source;
           message.innerText = '';
+          // var el = document.createElement( 'html' );
+          // el.innerHTML = html_content;
+
+          var titles = html_content.match(/<title[^>]*>([^<]+)<\/title>/)[1];
+          renderTitle(titles);
+          title = titles;
         }
     });
 
+
     // title = getCurrentTabTitle(); // WHAT?
-    title = "New Loc"
+    title = "New Site"
 
     document.getElementById("pinIt").addEventListener("click", function(){
           savePin(url, title, html_content);

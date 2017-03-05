@@ -75,24 +75,37 @@ function getCurrentTabTitle(callback) {
  * Save pin info:
  * @param {string} nurl - Target url to save.
  * @param {string} html_content - HTML content of the current tab
- *   
+ *
  */
-function savePin(nurl,html_content) {
+function savePin(nurl, title, html_content) {
 
   // var apiurl = 'http://127.0.0.1:5000/store'
-  var apiurl = 'http://locati.fi/store'
+  var apiurl = 'http://127.0.0.1:5000/store';
   var x = new XMLHttpRequest();
   x.open('POST', apiurl);
   // The Google image search API responds with JSON, so let Chrome parse it.
   x.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  
+
   document.getElementById('status').textContent = "Saving...";
   // x.responseType = 'json';
   x.onreadystatechange = function() {
     if (x.readyState == XMLHttpRequest.DONE) {
         //console.log(x.responseText);
         document.getElementById("pinIt").disabled = true;
-        document.getElementById('status').textContent = "Saved!";
+        document.getElementById('status').textContent = "Saving...";
+
+        idx = x.responseText;
+        var apiburl = 'http://127.0.0.1:5000/gvis';
+        var gx = new XMLHttpRequest();
+        gx.open('POST', apiburl);
+        // The Google image search API responds with JSON, so let Chrome parse it.
+        gx.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        gx.send(JSON.stringify({
+          "timestamp" : d
+        }));
+        gx.onreadystatechange = function(){
+          document.getElementById('status').textContent = "Saved!!!";
+        }
     }
   }
 
@@ -106,11 +119,16 @@ function savePin(nurl,html_content) {
 
 
   x.send(JSON.stringify({
-    "title": nurl,
+
+    "url": nurl,
+    "title": title,
     "image": "https://www.dropbox.com/s/e2j1u7zesvwv94b/placeholder.png?raw=1",
     "tags": document.getElementById('tags').value,
     "html": 'html_content',
-    "timestamp": d
+    "timestamp": d,
+    "locations": "",
+    "insights": "",
+    "img_dict": ""
   }));
   //alert(html_content);
 }
@@ -143,10 +161,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // title = getCurrentTabTitle(); // WHAT?
-    title = "New loc"
+    title = "New Loc"
 
     document.getElementById("pinIt").addEventListener("click", function(){
-          savePin(title, url, html_content);
+          savePin(url, title, html_content);
     });
 
 
@@ -170,4 +188,3 @@ function onWindowLoad() {
 }
 
 window.onload = onWindowLoad;
-

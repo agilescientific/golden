@@ -107,7 +107,7 @@ function savePin(nurl,html_content) {
 
   x.send(JSON.stringify({
     "title": nurl,
-    "image": "placeholder.png",
+    "image": "https://www.dropbox.com/s/e2j1u7zesvwv94b/placeholder.png?raw=1",
     "tags": document.getElementById('tags').value,
     "html": 'html_content',
     "timestamp": d

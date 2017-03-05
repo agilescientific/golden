@@ -103,7 +103,7 @@ def square_im(img):
         bottom = img.crop((0, y - dy, x, y))
         top = img.crop((0, 0, x, dy))
         #remove the slice with the least entropy
-        if _image_entropy(bottom) > _image_entropy(top):
+        if _image_entropy(bottom) < _image_entropy(top):
             img = img.crop((0, 0, x, y - dy))
         else:
             img = img.crop((0, dy, x, y))
@@ -145,10 +145,17 @@ def scrapeImages(url):
     for image in soup.find_all("img"):
         if image.get("src")!=None:
             imUrl = image.get("src")
+            if not imUrl.startswith('http'): # need to add absolute path
+                if imUrl[0]=='/':
+                    base = url[:url.index('://')]+url[url.index('://'):]
+                    imUrl = urllib.parse.urljoin(base,imUrl)
+                else:
+                    base = url[::-1][url[::-1].index('/'):][::-1]
+                    imUrl = urllib.parse.urljoin(base,imUrl)
             size = get_image_size(imUrl)
             nPix = np.product(size)
             # Penalize long/wide images
-            if max(size)>2*min(size):
+            if max(size)>2.5*min(size):
                 nPix/=10.
             if nPix > maxPix:
                 maxPix,bigIm = nPix,imUrl          
@@ -164,7 +171,7 @@ def scrapeImages(url):
                     ims[imUrl]['GVlabels'] = allLabels
                 # if image is labelled as mappy, extract text, geocode, compute geometric median
                 if 'map' in allLabels or 'drawing' in allLabels or 'diagram' in allLabels or\
-                   'location' in allLabels:
+                   'location' in allLabels or 'line' in allLabels or 'shape' in allLabels:
                     text = detect_text_url(imUrl)
                     strings = text[0].description.split('\n')
                     print(strings)
@@ -175,7 +182,8 @@ def scrapeImages(url):
                         
     # build square thumbnail for biggest image
     thumb = getThumb(bigIm)
-    thumb.save(url+'.thumb.jpg',format='jpeg')
+    thumbName = bigIm[::-1][:bigIm[::-1].index('/')][::-1]
+    thumb.save(thumbName+'_thumb.jpg',format='jpeg')
     # RETURN THUMBNAME?
         
     return(ims)

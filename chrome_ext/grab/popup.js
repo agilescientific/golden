@@ -79,7 +79,7 @@ function getCurrentTabTitle(callback) {
  */
 function savePin(nurl,html_content) {
 
-  var apiurl = 'http://127.0.0.1:5000/api/pin'
+  var apiurl = 'http://127.0.0.1:5000/store'
   var x = new XMLHttpRequest();
   x.open('POST', apiurl);
   // The Google image search API responds with JSON, so let Chrome parse it.
@@ -107,7 +107,7 @@ function savePin(nurl,html_content) {
     "title":nurl,
     "image":"https://www.w3schools.com/images/colorpicker.gif",
     "tags": document.getElementById('tags').value,
-    "html": html_content,
+    "html": 'html_content',
     "timestamp": d
   }));
   //alert(html_content);

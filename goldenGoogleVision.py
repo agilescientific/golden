@@ -16,6 +16,8 @@ import urllib
 from bs4 import BeautifulSoup
 import json
 import math
+from secrets import meaningcloud
+
 
 def get_image_size(url):
     try:
@@ -185,8 +187,50 @@ def scrapeImages(url):
     thumbName = bigIm[::-1][:bigIm[::-1].index('/')][::-1]
     thumb.save(thumbName+'_thumb.jpg',format='jpeg')
     # RETURN THUMBNAME?
-        
+
     return(ims)
-                
-                
-    
+
+
+def analyse_text(t, txtf='plain'):
+    url = "http://api.meaningcloud.com/topics-2.0"
+
+    data = {
+        'key': meaningcloud,
+        'of': 'json',
+        'txt': text,
+        'lang': 'en',
+        'txtf': txtf,  # could be plain or html
+        'dm': 's',  # semantic disambiguation includes morphosyntactic disambiguation
+        'rt': 'n',   # relaxed typography / strictness
+        'sdg': 'l',  # Semantic disambiguation grouping (only if dm=s)
+        'timeref': '2017-03-03 18:00:00 GMT-04:00',  # For interpreting relative time
+        'st': 'n',
+        'tt': 'a',  # topic types
+        'uw': 'n',  # try to deal with unknown words (eg b/c typos)
+        'ud': '',    # user dictionary
+        }
+
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+    r = requests.request("POST", url, data=data, headers=headers)
+
+    return r.json()
+
+
+def get_people(j):
+    return [x['form'] for x in j['entity_list'] if 'Person' in x['sementity']['type']]
+
+
+def get_companies(j):
+    return [x['form'] for x in j['entity_list'] if 'Company' in x['sementity']['type']]
+
+
+def get_places(j):
+    return [x['form'] for x in j['entity_list'] if 'Location' in x['sementity']['type']]
+
+
+def get_elements(j):
+    return [x['form'] for x in j['concept_list'] if 'Element' in x['sementity']['type']]
+
+# Call like (for HTML)...  get_people(analyse_text(html, txtf='html'))
+# Or like...  get_elements(analyse_text(html, 'html'))

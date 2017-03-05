@@ -80,7 +80,7 @@ function getCurrentTabTitle(callback) {
 function savePin(nurl,html_content) {
 
   // var apiurl = 'http://127.0.0.1:5000/store'
-  var apiurl = 'http://locati.fi/store'
+  var apiurl = 'http://127.0.0.1:5000/store';
   var x = new XMLHttpRequest();
   x.open('POST', apiurl);
   // The Google image search API responds with JSON, so let Chrome parse it.
@@ -93,6 +93,16 @@ function savePin(nurl,html_content) {
         //console.log(x.responseText);
         document.getElementById("pinIt").disabled = true;
         document.getElementById('status').textContent = "Saved!";
+
+        idx = x.responseText;
+        var apiurl = 'http://127.0.0.1:5000/gvis';
+        var gx = new XMLHttpRequest();
+        gx.open('POST', apiurl);
+        // The Google image search API responds with JSON, so let Chrome parse it.
+        gx.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        gx.send(JSON.stringify({
+          "timestamp" : d
+        }));
     }
   }
 
@@ -110,7 +120,10 @@ function savePin(nurl,html_content) {
     "image": "placeholder.png",
     "tags": document.getElementById('tags').value,
     "html": 'html_content',
-    "timestamp": d
+    "timestamp": d,
+    "locations": "",
+    "insights": "",
+    "img_dict": ""
   }));
   //alert(html_content);
 }
@@ -143,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // title = getCurrentTabTitle(); // WHAT?
-    title = "New loc"
+    title = "New Loc"
 
     document.getElementById("pinIt").addEventListener("click", function(){
           savePin(title, url, html_content);

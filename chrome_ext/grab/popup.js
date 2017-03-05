@@ -79,7 +79,8 @@ function getCurrentTabTitle(callback) {
  */
 function savePin(nurl,html_content) {
 
-  var apiurl = 'http://127.0.0.1:5000/store'
+  // var apiurl = 'http://127.0.0.1:5000/store'
+  var apiurl = 'http://locati.fi/store'
   var x = new XMLHttpRequest();
   x.open('POST', apiurl);
   // The Google image search API responds with JSON, so let Chrome parse it.
@@ -105,8 +106,8 @@ function savePin(nurl,html_content) {
 
 
   x.send(JSON.stringify({
-    "title":nurl,
-    "image":"https://www.w3schools.com/images/colorpicker.gif",
+    "title": nurl,
+    "image": "placeholder.png",
     "tags": document.getElementById('tags').value,
     "html": 'html_content',
     "timestamp": d
@@ -141,8 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // title = getCurrentTabTitle(); // WHAT?
+    title = "New loc"
+
     document.getElementById("pinIt").addEventListener("click", function(){
-          savePin(url,html_content);
+          savePin(title, url, html_content);
     });
 
 

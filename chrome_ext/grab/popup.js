@@ -85,6 +85,7 @@ function savePin(nurl,html_content) {
   // The Google image search API responds with JSON, so let Chrome parse it.
   x.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   
+  document.getElementById('status').textContent = "Saving...";
   // x.responseType = 'json';
   x.onreadystatechange = function() {
     if (x.readyState == XMLHttpRequest.DONE) {

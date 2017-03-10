@@ -92,7 +92,7 @@ function savePin(nurl, title, html_content) {
     if (x.readyState == XMLHttpRequest.DONE) {
         //console.log(x.responseText);
         document.getElementById("pinIt").disabled = true;
-        document.getElementById('status').textContent = "Saving...";
+        document.getElementById('status').textContent = "Done!";
 
         idx = x.responseText;
         var gx = new XMLHttpRequest();

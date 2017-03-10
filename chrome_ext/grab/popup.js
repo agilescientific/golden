@@ -77,17 +77,17 @@ function getCurrentTabTitle(callback) {
  * @param {string} html_content - HTML content of the current tab
  *
  */
+
 function savePin(nurl, title, html_content) {
 
-  // var apiurl = 'http://127.0.0.1:5000/store'
-  var apiurl = 'http://127.0.0.1:5000/store';
   var x = new XMLHttpRequest();
-  x.open('POST', apiurl);
+  x.open('POST', localStorage.getItem("server")+'store');
   // The Google image search API responds with JSON, so let Chrome parse it.
   x.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   document.getElementById('status').textContent = "Saving...";
   // x.responseType = 'json';
+
   x.onreadystatechange = function() {
     if (x.readyState == XMLHttpRequest.DONE) {
         //console.log(x.responseText);
@@ -95,19 +95,18 @@ function savePin(nurl, title, html_content) {
         document.getElementById('status').textContent = "Saving...";
 
         idx = x.responseText;
-        var apiburl = 'http://127.0.0.1:5000/gvis';
         var gx = new XMLHttpRequest();
-        gx.open('POST', apiburl);
+        gx.open('POST', localStorage.getItem("server")+'gvis');
         // The Google image search API responds with JSON, so let Chrome parse it.
         gx.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         gx.send(JSON.stringify({
           "timestamp" : d
         }));
-        gx.onreadystatechange = function(){
+        gx.onreadystatechange = function() {
           document.getElementById('status').textContent = "Saved!!!";
         }
-    }
-  }
+    };
+  };
 
   x.onerror = function() {
     errorCallback('Network error.');
@@ -193,5 +192,24 @@ function onWindowLoad() {
   });
 
 }
+
+
+// Restores select box state using the preferences
+// stored in chrome.storage.
+function restore_options() {
+  chrome.storage.sync.get({
+    server: 'Dev'
+  }, function(result) {
+    if (result.server.toLowerCase() == "dev") {
+      localStorage.setItem("server", 'http://127.0.0.1:5000/');
+    } else {
+      localStorage.setItem("server", 'http://locati.fi/');
+    };
+  });
+
+
+}
+
+document.addEventListener('DOMContentLoaded', restore_options);
 
 window.onload = onWindowLoad;

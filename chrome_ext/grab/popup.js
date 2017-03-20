@@ -187,7 +187,7 @@ function onWindowLoad() {
   }, function() {
     // If you try and inject into an extensions page or the webstore/NTP you'll get an error
     if (chrome.runtime.lastError) {
-      message.innerText = 'There was an error parsing the site : \n' + chrome.runtime.lastError.message;
+      message.innerText = 'There was an error parsing the site';
     }
   });
 
@@ -197,7 +197,7 @@ function onWindowLoad() {
 // Restores select box state using the preferences
 // stored in chrome.storage.
 function restore_options() {
-  chrome.storage.sync.get({
+  chrome.storage.local.get({
     server: 'Dev'
   }, function(result) {
     if (result.server.toLowerCase() == "dev") {

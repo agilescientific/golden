@@ -7,7 +7,7 @@ from oauth2client.client import GoogleCredentials
 credentials = GoogleCredentials.get_application_default()
 import googlemaps
 from datetime import datetime
-gmaps = googlemaps.Client(key='AIzaSyB9lTkL2nX1SYDnI7zino6IqiiPudgqVvI')
+gmaps = googlemaps.Client(key='')
 import geomMed as gm
 import requests
 from PIL import Image
